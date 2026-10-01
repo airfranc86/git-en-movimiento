@@ -4,7 +4,7 @@ Un simulador visual para entender, de una vez por todas, qué le pasa al histori
 
 ![Captura del simulador](docs/captura.png)
 
-> Demo en vivo: _se agrega cuando esté desplegado en Vercel_
+> Demo en vivo: **[git-en-movimiento.vercel.app](https://git-en-movimiento.vercel.app)**
 
 ## Por qué lo hice
 
