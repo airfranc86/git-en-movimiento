@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Git en movimiento: simulador visual de Git y GitHub</title>
+<meta name="description" content="Simulador interactivo que muestra paso a paso qué le pasa al grafo de commits con merge, rebase, squash, force push, reset, revert, cherry-pick y los botones de merge de GitHub.">
+<meta property="og:title" content="Git en movimiento">
+<meta property="og:description" content="Cada comando de Git, ejecutado paso a paso sobre el grafo de commits.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#15233a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true">
+      <path d="M8 30 V8" stroke="var(--c0)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M8 22 C8 15 28 18 28 10" stroke="var(--c1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <circle cx="8" cy="30" r="4.5" fill="var(--c0)"/><circle cx="8" cy="8" r="4.5" fill="var(--c0)"/><circle cx="28" cy="10" r="4.5" fill="var(--c1)"/>
+    </svg>
+    <div><h1>Git en movimiento</h1><p>Cada comando, ejecutado paso a paso sobre el grafo de commits</p></div>
+  </div>
+  <button id="themeBtn" class="ghost" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+</header>
+
+<div class="app">
+  <nav id="nav" aria-label="Escenarios"></nav>
+  <main>
+    <div class="route">
+      <div class="lv" role="radiogroup" aria-label="Nivel de aprendizaje">
+        <button type="button" role="radio" data-lv="1">Básico</button>
+        <button type="button" role="radio" data-lv="2">Intermedio</button>
+        <button type="button" role="radio" data-lv="3">Avanzado</button>
+      </div>
+      <div class="prog"><div class="prog-txt" id="progTxt"></div><div class="bar"><span id="progBar"></span></div></div>
+      <button type="button" class="link" id="progReset">Reiniciar progreso</button>
+    </div>
+    <select id="navSelect" aria-label="Elegir escenario"></select>
+
+    <section id="scenario">
+      <div class="sc-head">
+        <div class="scnav">
+          <button type="button" class="cbtn sm" id="scPrev" aria-label="Escenario anterior">‹</button>
+          <span id="scPos"></span>
+          <button type="button" class="cbtn sm" id="scNext" aria-label="Escenario siguiente">›</button>
+        </div>
+        <p class="grp" id="scGroup"></p>
+        <h2 id="scTitle"></h2>
+        <p class="what" id="scWhat"></p>
+        <div class="badges" id="badges"></div>
+      </div>
+
+      <div class="stage">
+        <div class="graph-wrap" id="graphWrap"><svg id="graph" role="img" aria-label="Grafo de commits"></svg></div>
+        <div class="legend">
+          <span><svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="var(--c0)"/></svg>commit</span>
+          <span><svg width="20" height="20"><circle cx="10" cy="10" r="6" fill="var(--c0)"/><circle cx="10" cy="10" r="9" fill="none" stroke="var(--c0)" stroke-width="1.5"/></svg>merge commit (2 padres)</span>
+          <span><svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="var(--sheet)" stroke="var(--c2)" stroke-width="2" stroke-dasharray="3 2"/></svg>solo en GitHub (no lo bajaste)</span>
+          <span><svg width="16" height="16" opacity=".5"><circle cx="8" cy="8" r="6" fill="var(--sheet)" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="2 2"/></svg>huérfano: ninguna rama lo alcanza (solo en reflog)</span>
+          <span><svg width="44" height="16"><rect x="1" y="2" width="42" height="12" rx="6" fill="var(--ink)"/></svg>HEAD -&gt; rama actual</span>
+          <span><svg width="44" height="16"><rect x="1" y="2" width="42" height="12" rx="6" fill="var(--sheet2)" stroke="var(--ink3)" stroke-dasharray="3 2"/></svg>rama remota (origin/…)</span>
+        </div>
+        <div class="controls">
+          <button class="cbtn" id="bReset" type="button" aria-label="Volver al inicio">Inicio</button>
+          <button class="cbtn" id="bPrev" type="button" aria-label="Paso anterior">‹ Anterior</button>
+          <button class="cbtn primary" id="bPlay" type="button">Reproducir</button>
+          <button class="cbtn" id="bNext" type="button" aria-label="Paso siguiente">Siguiente ›</button>
+          <span class="kbd">Flechas para avanzar (al final, pasan al siguiente escenario)</span>
+          <div class="dots" id="dots"></div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="term" aria-label="Terminal">
+          <div class="term-bar"><span><i></i><i></i><i></i></span><span>~/app (bash)</span></div>
+          <div class="term-body" id="term"></div>
+        </div>
+        <div class="explain" aria-live="polite">
+          <div class="stepn" id="stepN"></div>
+          <p class="stepcmd" id="stepCmd"></p>
+          <div id="stepD"></div>
+          <div id="alert"></div>
+          <div id="next"></div>
+        </div>
+      </div>
+
+      <div class="area" id="area" hidden></div>
+
+      <div class="info" id="info"></div>
+    </section>
+
+    <section id="compare" hidden></section>
+  </main>
+</div>
+<script src="js/engine.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "git-en-movimiento",
+  "version": "1.0.0",
+  "description": "Simulador visual e interactivo de comandos Git y estrategias de merge de GitHub.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
